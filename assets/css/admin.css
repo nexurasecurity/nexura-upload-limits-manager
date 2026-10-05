@@ -1,0 +1,254 @@
+@keyframes nexuraPulse {
+	0% { opacity: 1; transform: scale(1); }
+	50% { opacity: 0.4; transform: scale(1.3); }
+	100% { opacity: 1; transform: scale(1); }
+}
+
+.nexura-upload-card {
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+	border: 1px solid #eef0f2;
+	padding: 24px;
+	margin-bottom: 24px;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	box-sizing: border-box;
+}
+.nexura-upload-card:hover {
+	box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+	transform: translateY(-2px);
+}
+.nexura-upload-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #f0f0f1;
+}
+.nexura-upload-title {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: #1e1e1e;
+	letter-spacing: -0.3px;
+}
+.nexura-upload-desc {
+	color: #646970;
+	font-size: 13px;
+	margin: 12px 0 24px;
+}
+.nexura-upload-btn {
+	background: #1e1e1e;
+	color: #fff !important;
+	padding: 6px 14px;
+	border-radius: 6px;
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 12px;
+	transition: background 0.2s;
+}
+.nexura-upload-btn:hover {
+	background: #333;
+}
+.nexura-upload-stat-row {
+	display: flex;
+	justify-content: space-between;
+	font-size: 13px;
+	color: #3c434a;
+	margin-bottom: 8px;
+	align-items: flex-end;
+}
+.nexura-upload-stat-name {
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.nexura-upload-stat-val {
+	color: #8c8f94;
+	font-size: 12px;
+}
+.nexura-upload-bar-bg {
+	height: 8px;
+	background: #f0f0f1;
+	border-radius: 4px;
+	overflow: hidden;
+	margin-bottom: 16px;
+}
+.nexura-upload-bar-fill {
+	height: 100%;
+	border-radius: 4px;
+	animation: nexuraFill 1s ease-out forwards;
+}
+@keyframes nexuraFill {
+	from { width: 0; }
+}
+.nexura-upload-total-box {
+	margin-top: 30px;
+	background: linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%);
+	padding: 20px;
+	border-radius: 8px;
+	text-align: center;
+	border: 1px solid #e9ecef;
+}
+.nexura-upload-total-val {
+	font-size: 20px;
+	font-weight: 700;
+	color: #1e1e1e;
+	margin: 0 0 4px 0;
+}
+.nexura-upload-info-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+	background: #fafafa;
+	padding: 16px;
+	border-radius: 8px;
+	margin-top: 20px;
+}
+.nexura-upload-info-item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.nexura-upload-info-label {
+	color: #8c8f94;
+	font-weight: 500;
+	text-transform: uppercase;
+	font-size: 10px;
+	letter-spacing: 0.5px;
+}
+.nexura-upload-info-value {
+	font-weight: 600;
+	color: #1e1e1e;
+	font-size: 13px;
+}
+.nexura-upload-user-row {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 20px;
+}
+.nexura-upload-avatar {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.nexura-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+.nexura-search-box {
+    position: relative;
+    width: 300px;
+}
+.nexura-search-box input {
+    width: 100%;
+    padding: 10px 15px 10px 35px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+}
+.nexura-search-box::before {
+    content: "\f179";
+    font-family: dashicons;
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+.nexura-user-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 25px;
+    margin-bottom: 15px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+.nexura-user-card:hover {
+    box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+    border-color: #cbd5e1;
+}
+.nexura-user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 30%;
+}
+.nexura-user-avatar img {
+    border-radius: 50%;
+    border: 2px solid #f1f5f9;
+}
+.nexura-user-details h4 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    color: #0f172a;
+}
+.nexura-user-details span {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 12px;
+    width: max-content;
+}
+.nexura-progress-wrapper {
+    flex-grow: 1;
+    margin: 0 40px;
+}
+.nexura-progress-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.nexura-progress-bar-bg {
+    background: #f1f5f9;
+    height: 10px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+.nexura-progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+.nexura-actions {
+    width: 200px;
+    text-align: right;
+}
+.nexura-add-quota-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.nexura-inline-notice {
+    display: none;
+    background: #ecfdf5;
+    color: #065f46;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid #a7f3d0;
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 500;
+}

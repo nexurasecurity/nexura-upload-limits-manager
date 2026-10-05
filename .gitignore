@@ -1,0 +1,23 @@
+# WordPress & System Files
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+
+# IDE & Editor Directories
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Dependencies & Build Output
+node_modules/
+vendor/
+dist/
+build/
