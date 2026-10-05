@@ -12,7 +12,7 @@
   <a href="https://wordpress.org/plugins/nexura-upload-limits-manager/"><img src="https://img.shields.io/badge/TESTED%20UP%20TO-7.1-00d084.svg?style=flat-square&logo=wordpress" alt="Tested Up To"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-GPLv2-007acc.svg?style=flat-square" alt="License GPLv2"></a>
   <br>
-  <a href="https://github.com/nexurasecurity/nexura-upload-limits-manager/actions"><img src="https://img.shields.io/badge/CI-passing-2ea44f.svg?style=flat-square&logo=githubactions&logoColor=white" alt="CI Status"></a>
+  <a href="https://github.com/nexurasecurity/nexura-upload-limits-manager/actions/workflows/ci.yml"><img src="https://github.com/nexurasecurity/nexura-upload-limits-manager/actions/workflows/ci.yml/badge.svg" alt="CI - PHP Checks"></a>
   <a href="https://github.com/nexurasecurity/nexura-upload-limits-manager/stargazers"><img src="https://img.shields.io/github/stars/nexurasecurity/nexura-upload-limits-manager?style=flat-square&color=007acc" alt="Stars"></a>
   <a href="https://github.com/nexurasecurity/nexura-upload-limits-manager/network/members"><img src="https://img.shields.io/github/forks/nexurasecurity/nexura-upload-limits-manager?style=flat-square&color=007acc" alt="Forks"></a>
   <a href="https://github.com/nexurasecurity/nexura-upload-limits-manager/issues"><img src="https://img.shields.io/github/issues/nexurasecurity/nexura-upload-limits-manager?style=flat-square&color=2ea44f" alt="Issues"></a>

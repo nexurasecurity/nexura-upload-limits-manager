@@ -1,0 +1,67 @@
+name: CI - PHP Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  php-lint:
+    name: PHP Syntax Check (${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3']
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: none
+
+      - name: Lint PHP Files (Syntax Check)
+        run: |
+          echo "Linting all PHP files against PHP ${{ matrix.php-version }}..."
+          errors=0
+          for file in $(find . -type f -name "*.php" -not -path "*/vendor/*" -not -path "*/node_modules/*"); do
+            php -l "$file" || errors=$((errors + 1))
+          done
+          if [ $errors -gt 0 ]; then
+            echo "::error::Found $errors PHP syntax error(s)!"
+            exit 1
+          fi
+          echo "All PHP files passed syntax checks successfully."
+
+  plugin-check:
+    name: WordPress Plugin Header & Metadata Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: none
+
+      - name: Verify Plugin Headers & Readme
+        run: |
+          echo "Checking main plugin header file..."
+          test -f nexura-upload-limits-manager.php || (echo "Main file missing!" && exit 1)
+          test -f readme.txt || (echo "readme.txt missing!" && exit 1)
+          
+          # Check required WordPress header fields
+          grep -q "Plugin Name:" nexura-upload-limits-manager.php || (echo "Missing Plugin Name header!" && exit 1)
+          grep -q "Version:" nexura-upload-limits-manager.php || (echo "Missing Version header!" && exit 1)
+          grep -q "Requires at least:" nexura-upload-limits-manager.php || (echo "Missing Requires at least header!" && exit 1)
+          grep -q "Requires PHP:" nexura-upload-limits-manager.php || (echo "Missing Requires PHP header!" && exit 1)
+          
+          echo "WordPress Plugin Headers Verified Successfully!"
