@@ -128,7 +128,12 @@ Additionally, Nexura gives administrators full control over PHP limits (`upload_
 
 ## 📜 Changelog
 
-### Version 1.0.6 (Latest)
+### Version 1.0.7 (Latest)
+- **Media Library Uploads Fix:** Media Library uploads of JPG and PNG no longer fail with "Sorry, you are not allowed to upload this file type." Chunks are assembled before WordPress checks the file.
+- **Chunk Size Parsing Fix:** Plugin, theme, and block-editor uploads no longer fail with "This part is too large for the server" after the first part by ensuring chunk sizes are parsed as numbers.
+- **Package Upload Progress:** Added inline visual progress bar and percentage status feedback during theme and plugin package uploads.
+
+### Version 1.0.6
 - **Enhanced Block Editor Uploads:** Seamless chunking support for block editor media uploads on 2 MB limit hosts.
 - **Plugin & Theme Package Chunking:** Large plugin and theme ZIP installs now upload in chunks before handing over to the core installer.
 - **Nginx Body Limit Compatibility:** Enforced sub-512 KB chunk size to ensure compatibility with strict Nginx `client_max_body_size` and CDN rules.

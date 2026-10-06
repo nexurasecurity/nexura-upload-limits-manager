@@ -20,6 +20,9 @@ class Nexura_Chunked_Upload {
 	public static function init() {
 		// Intercept async-upload for chunking before default WordPress handler
 		add_action( 'wp_ajax_async-upload', array( __CLASS__, 'intercept_chunk' ), 1 );
+		// Media Library posts to async-upload.php, which calls wp_ajax_upload_attachment()
+		// directly. admin_init runs first, so assemble chunks before that check.
+		add_action( 'admin_init', array( __CLASS__, 'intercept_media_library_chunk' ), 0 );
 		
 		// Modify plupload default settings to enable chunking
 		add_filter( 'plupload_default_settings', array( __CLASS__, 'enable_chunking' ) );
@@ -74,11 +77,12 @@ class Nexura_Chunked_Upload {
 		);
 
 		if ( in_array( $hook, array( 'plugin-install.php', 'theme-install.php' ), true ) ) {
+			$package_js = NEXURA_UPLOAD_MANAGER_DIR . 'assets/js/nexura-package-upload.js';
 			wp_enqueue_script(
 				'nexura-package-upload',
 				NEXURA_UPLOAD_MANAGER_URL . 'assets/js/nexura-package-upload.js',
 				array(),
-				NEXURA_UPLOAD_MANAGER_VERSION,
+				file_exists( $package_js ) ? (string) filemtime( $package_js ) : NEXURA_UPLOAD_MANAGER_VERSION,
 				true
 			);
 			wp_localize_script(
@@ -525,6 +529,12 @@ class Nexura_Chunked_Upload {
 				}
 			);
 
+			// Media Library never fires wp_ajax_async-upload. Finish the attachment here,
+			// because the merged file is not a PHP upload and would fail is_uploaded_file().
+			if ( isset( $_REQUEST['action'] ) && 'upload-attachment' === $_REQUEST['action'] ) {
+				self::finish_media_library_upload( $final_temp_file, $name, $session_id, $session_dir );
+			}
+
 			// Let WordPress's default wp_ajax_async-upload handler finish the request.
 			return;
 		}
@@ -535,6 +545,122 @@ class Nexura_Chunked_Upload {
 			'chunk'   => $chunk,
 		) );
 		exit;
+	}
+
+	/**
+	 * Assemble Media Library chunks before async-upload.php validates the file.
+	 *
+	 * A partial image fails wp_check_filetype_and_ext(), which is the
+	 * "Sorry, you are not allowed to upload this file type." error.
+	 */
+	public static function intercept_media_library_chunk() {
+		if ( ! isset( $_REQUEST['action'] ) || 'upload-attachment' !== $_REQUEST['action'] ) {
+			return;
+		}
+		if ( ! isset( $_POST['chunk'], $_POST['chunks'], $_POST['name'], $_FILES['async-upload'] ) ) {
+			return;
+		}
+
+		self::intercept_chunk();
+	}
+
+	/**
+	 * Create the attachment from a merged file and answer in Plupload's format.
+	 *
+	 * @param string $final_temp_file Merged file path.
+	 * @param string $name            Sanitized original filename.
+	 * @param string $session_id      Session ID.
+	 * @param string $session_dir     Session directory.
+	 */
+	private static function finish_media_library_upload( $final_temp_file, $name, $session_id, $session_dir ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$post_id = 0;
+		if ( isset( $_REQUEST['post_id'] ) && '' !== (string) $_REQUEST['post_id'] ) {
+			$post_id = (int) $_REQUEST['post_id'];
+			if ( $post_id && ! current_user_can( 'edit_post', $post_id ) ) {
+				self::send_media_upload_error( __( 'Sorry, you are not allowed to attach files to this post.' ), $name, $session_id, $session_dir );
+			}
+		}
+
+		$post_data = array();
+		if ( ! empty( $_REQUEST['post_data'] ) ) {
+			require_once ABSPATH . 'wp-admin/includes/post.php';
+			$post_data = _wp_get_allowed_postdata( _wp_translate_postdata( false, (array) $_REQUEST['post_data'] ) );
+			if ( is_wp_error( $post_data ) ) {
+				self::send_media_upload_error( $post_data->get_error_message(), $name, $session_id, $session_dir );
+			}
+		}
+
+		if ( isset( $post_data['context'] ) && in_array( $post_data['context'], array( 'custom-header', 'custom-background' ), true ) ) {
+			$wp_filetype = wp_check_filetype_and_ext( $final_temp_file, $name );
+			if ( empty( $wp_filetype['type'] ) || ! wp_match_mime_types( 'image', $wp_filetype['type'] ) ) {
+				self::send_media_upload_error( __( 'The uploaded file is not a valid image. Please try again.' ), $name, $session_id, $session_dir );
+			}
+		}
+
+		$attachment_id = media_handle_sideload(
+			array(
+				'name'     => $name,
+				'tmp_name' => $final_temp_file,
+				'size'     => file_exists( $final_temp_file ) ? filesize( $final_temp_file ) : 0,
+				'error'    => 0,
+			),
+			$post_id,
+			null,
+			$post_data
+		);
+
+		if ( is_wp_error( $attachment_id ) ) {
+			self::send_media_upload_error( $attachment_id->get_error_message(), $name, $session_id, $session_dir );
+		}
+
+		if ( isset( $post_data['context'], $post_data['theme'] ) ) {
+			if ( 'custom-background' === $post_data['context'] ) {
+				update_post_meta( $attachment_id, '_wp_attachment_is_custom_background', $post_data['theme'] );
+			}
+			if ( 'custom-header' === $post_data['context'] ) {
+				update_post_meta( $attachment_id, '_wp_attachment_is_custom_header', $post_data['theme'] );
+			}
+		}
+
+		$attachment = wp_prepare_attachment_for_js( $attachment_id );
+		if ( ! $attachment ) {
+			wp_die();
+		}
+
+		echo wp_json_encode(
+			array(
+				'success' => true,
+				'data'    => $attachment,
+			)
+		);
+		wp_die();
+	}
+
+	/**
+	 * Send a Media Library upload error and drop the chunk session.
+	 *
+	 * @param string $message     Error shown in the media modal.
+	 * @param string $filename    Sanitized filename.
+	 * @param string $session_id  Session ID.
+	 * @param string $session_dir Session directory.
+	 */
+	private static function send_media_upload_error( $message, $filename, $session_id, $session_dir ) {
+		self::fail_session( $session_id, $session_dir );
+
+		echo wp_json_encode(
+			array(
+				'success' => false,
+				'data'    => array(
+					'message'  => $message,
+					'filename' => esc_html( $filename ),
+				),
+			)
+		);
+		wp_die();
 	}
 
 	/**

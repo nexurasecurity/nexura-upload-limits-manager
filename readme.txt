@@ -3,7 +3,7 @@ Contributors: prokashsarker2026, nexurasecurity
 Tags: increase upload limit, max upload size, big file uploads, storage quota, upload filesize
 Requires at least: 5.6
 Tested up to: 7.1
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -95,6 +95,10 @@ The public site does not load this plugin's scripts or styles. Chunk uploads and
 
 
 == Changelog ==
+
+= 1.0.7 =
+* Fix: Media Library uploads of JPG and PNG no longer fail with "Sorry, you are not allowed to upload this file type." Chunks are assembled before WordPress checks the file.
+* Fix: Plugin, theme, and block-editor uploads no longer fail with "This part is too large for the server" after the first part. WordPress was sending the chunk size as text, so later parts contained the rest of the file.
 
 = 1.0.6 =
 * Images, videos, and other media still upload when the host PHP limit stays at 2 MB, including uploads from the block editor.

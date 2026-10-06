@@ -5,6 +5,11 @@
 		return;
 	}
 
+	// wp_localize_script turns numbers into strings. Adding that string
+	// concatenates, so later parts were larger than the server allows.
+	nexuraRestChunk.chunkSize = parseInt(nexuraRestChunk.chunkSize, 10) || 524288;
+	nexuraRestChunk.singleLimit = parseInt(nexuraRestChunk.singleLimit, 10) || nexuraRestChunk.chunkSize;
+
 	function isMediaCreate(options) {
 		if (!options || String(options.method || 'GET').toUpperCase() !== 'POST') {
 			return false;

@@ -3,7 +3,7 @@
  * Plugin Name:       Nexura Upload Limits Manager – Increase Maximum Upload File Size
  * Plugin URI:        https://wordpress.org/plugins/nexura-upload-limits-manager
  * Description:       Increase maximum upload file size, PHP memory, and execution time. Large images, videos, files, themes, and plugins upload in parts when the host limit is 2 MB.
- * Version:           1.0.6
+ * Version:           1.0.7
  * Author:            Nexura Security
  * Author URI:        https://nexurasecurity.com/
  * License:           GPLv2 or later
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define Plugin Constants
-define( 'NEXURA_UPLOAD_MANAGER_VERSION', '1.0.6' );
+define( 'NEXURA_UPLOAD_MANAGER_VERSION', '1.0.7' );
 define( 'NEXURA_UPLOAD_MANAGER_FILE', __FILE__ );
 define( 'NEXURA_UPLOAD_MANAGER_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NEXURA_UPLOAD_MANAGER_URL', plugin_dir_url( __FILE__ ) );
