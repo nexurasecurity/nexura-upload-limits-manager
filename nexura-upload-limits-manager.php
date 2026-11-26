@@ -71,6 +71,7 @@ class Nexura_Upload_Manager {
 	 * Hook into actions and filters.
 	 */
 	private function init_hooks() {
+		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'nexura_daily_disk_check', array( 'Nexura_Upload_Manager_Limits', 'check_disk_space' ) );
 		// Run DB migration check directly since we are already inside plugins_loaded.
 		$this->maybe_upgrade();
@@ -79,6 +80,17 @@ class Nexura_Upload_Manager {
 
 		// Initialize Large File Chunking Engine.
 		Nexura_Chunked_Upload::init();
+	}
+
+	/**
+	 * Load plugin textdomain for translations.
+	 */
+	public function load_textdomain() {
+		load_plugin_textdomain(
+			'nexura-upload-limits-manager',
+			false,
+			dirname( plugin_basename( NEXURA_UPLOAD_MANAGER_FILE ) ) . '/languages'
+		);
 	}
 
 	/**

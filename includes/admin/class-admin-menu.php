@@ -28,8 +28,8 @@ class Nexura_Upload_Manager_Admin {
 	 */
 	public function register_menu() {
 		add_menu_page(
-			'Upload Manager',
-			'Upload Manager',
+			__( 'Upload Manager', 'nexura-upload-limits-manager' ),
+			__( 'Upload Manager', 'nexura-upload-limits-manager' ),
 			'manage_options',
 			'nexura-upload-manager',
 			array( $this, 'render_page' ),
@@ -153,7 +153,7 @@ class Nexura_Upload_Manager_Admin {
 		check_ajax_referer( 'nexura_install_security_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'install_plugins' ) ) {
-			wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+			wp_send_json_error( array( 'message' => __( 'Insufficient permissions', 'nexura-upload-limits-manager' ) ) );
 		}
 
 		$plugin_file = 'nexura-security/nexura-security.php';
@@ -165,7 +165,7 @@ class Nexura_Upload_Manager_Admin {
 				wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 			}
 			delete_transient( 'fs_plugin_nexura-security_activated' );
-			wp_send_json_success( array( 'message' => 'Activated' ) );
+			wp_send_json_success( array( 'message' => __( 'Activated', 'nexura-upload-limits-manager' ) ) );
 		}
 
 		include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
@@ -175,7 +175,7 @@ class Nexura_Upload_Manager_Admin {
 		$api = plugins_api( 'plugin_information', array( 'slug' => $plugin_slug, 'fields' => array( 'sections' => false ) ) );
 		
 		if ( is_wp_error( $api ) ) {
-			wp_send_json_error( array( 'message' => 'Plugin not found' ) );
+			wp_send_json_error( array( 'message' => __( 'Plugin not found', 'nexura-upload-limits-manager' ) ) );
 		}
 
 		$upgrader = new Plugin_Upgrader( new Automatic_Upgrader_Skin() );
@@ -189,9 +189,9 @@ class Nexura_Upload_Manager_Admin {
 			}
 			// Prevent Freemius from redirecting
 			delete_transient( 'fs_plugin_nexura-security_activated' );
-			wp_send_json_success( array( 'message' => 'Installed' ) );
+			wp_send_json_success( array( 'message' => __( 'Installed', 'nexura-upload-limits-manager' ) ) );
 		} else {
-			$error_msg = is_wp_error( $installed ) ? $installed->get_error_message() : 'Install failed';
+			$error_msg = is_wp_error( $installed ) ? $installed->get_error_message() : __( 'Install failed', 'nexura-upload-limits-manager' );
 			wp_send_json_error( array( 'message' => $error_msg ) );
 		}
 	}
@@ -203,14 +203,14 @@ class Nexura_Upload_Manager_Admin {
 		check_ajax_referer( 'nexura_upload_users_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+			wp_send_json_error( array( 'message' => __( 'Insufficient permissions', 'nexura-upload-limits-manager' ) ) );
 		}
 
 		$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
 		$quota   = isset( $_POST['quota'] ) ? sanitize_text_field( wp_unslash( $_POST['quota'] ) ) : '';
 
 		if ( ! $user_id || ! get_userdata( $user_id ) ) {
-			wp_send_json_error( array( 'message' => 'Invalid user ID' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid user ID', 'nexura-upload-limits-manager' ) ) );
 		}
 
 		if ( empty( $quota ) || 'Default' === $quota ) {
@@ -218,19 +218,19 @@ class Nexura_Upload_Manager_Admin {
 		} else {
 			$clean = Nexura_Upload_Manager_Limits::sanitize_size_value( $quota, false );
 			if ( '' === $clean ) {
-				wp_send_json_error( array( 'message' => 'Enter a size like 500M or 5GB, or Unlimited.' ) );
+				wp_send_json_error( array( 'message' => __( 'Enter a size like 500M or 5GB, or Unlimited.', 'nexura-upload-limits-manager' ) ) );
 			}
 			if ( 'Unlimited' !== $clean ) {
 				$quota_bytes = wp_convert_hr_to_bytes( $clean );
 				$disk_total  = function_exists( 'disk_total_space' ) ? @disk_total_space( ABSPATH ) : false;
 				if ( $disk_total && $quota_bytes > $disk_total ) {
-					wp_send_json_error( array( 'message' => 'Quota cannot exceed total hosting storage.' ) );
+					wp_send_json_error( array( 'message' => __( 'Quota cannot exceed total hosting storage.', 'nexura-upload-limits-manager' ) ) );
 				}
 			}
 			update_user_meta( $user_id, 'nexura_custom_storage_quota', $clean );
 		}
 
-		wp_send_json_success( array( 'message' => 'Quota saved successfully' ) );
+		wp_send_json_success( array( 'message' => __( 'Quota saved successfully', 'nexura-upload-limits-manager' ) ) );
 	}
 
 	/**

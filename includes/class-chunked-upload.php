@@ -209,20 +209,20 @@ class Nexura_Chunked_Upload {
 		// Verify nonce
 		check_ajax_referer( 'media-form' );
 		if ( ! current_user_can( 'upload_files' ) ) {
-			wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+			wp_send_json_error( array( 'message' => __( 'Insufficient permissions', 'nexura-upload-limits-manager' ) ) );
 		}
 		
 		// --------------------------------------------------------
 		// 1. Strict Validation
 		// --------------------------------------------------------
 		if ( $chunks < 1 || $chunks > 10000 ) {
-			wp_send_json_error( array( 'message' => 'Invalid chunk count.' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid chunk count.', 'nexura-upload-limits-manager' ) ) );
 		}
 		if ( ! preg_match( '/^nexura_[a-z0-9]+$/', $session_id ) ) {
-			wp_send_json_error( array( 'message' => 'Invalid session ID.' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid session ID.', 'nexura-upload-limits-manager' ) ) );
 		}
 		if ( $total_size <= 0 ) {
-			wp_send_json_error( array( 'message' => 'Invalid total size.' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid total size.', 'nexura-upload-limits-manager' ) ) );
 		}
 
 		// Enforce per-file upload limit (Global/Role based)
@@ -231,20 +231,21 @@ class Nexura_Chunked_Upload {
 		}
 		$effective_limit = Nexura_Upload_Manager_Limits::get_enforced_per_file_limit( $user_id );
 		if ( $effective_limit > 0 && $total_size > $effective_limit ) {
-			wp_send_json_error( array( 'message' => sprintf( 'File size exceeds your per-file upload limit (%s).', size_format( $effective_limit ) ) ) );
+			/* translators: %s: formatted per-file upload limit */
+			wp_send_json_error( array( 'message' => sprintf( __( 'File size exceeds your per-file upload limit (%s).', 'nexura-upload-limits-manager' ), size_format( $effective_limit ) ) ) );
 		}
 		
 		// File data
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$file_data = $_FILES['async-upload'];
 		if ( ! isset( $file_data['tmp_name'] ) || ! file_exists( $file_data['tmp_name'] ) ) {
-			wp_send_json_error( array( 'message' => 'File data missing.' ) );
+			wp_send_json_error( array( 'message' => __( 'File data missing.', 'nexura-upload-limits-manager' ) ) );
 		}
 		$chunk_size = filesize( $file_data['tmp_name'] );
 
 		// Validate chunk index
 		if ( $chunk < 0 || $chunk >= $chunks ) {
-			wp_send_json_error( array( 'message' => 'Invalid chunk index.' ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid chunk index.', 'nexura-upload-limits-manager' ) ) );
 		}
 		
 		global $wpdb;
@@ -262,7 +263,7 @@ class Nexura_Chunked_Upload {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$got_lock = $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 10)', $lock_name ) );
 			if ( '1' !== (string) $got_lock ) {
-				wp_send_json_error( array( 'message' => 'Upload is busy. Please retry.' ) );
+				wp_send_json_error( array( 'message' => __( 'Upload is busy. Please retry.', 'nexura-upload-limits-manager' ) ) );
 			}
 
 			// Re-check session inside lock to prevent race condition
@@ -277,7 +278,7 @@ class Nexura_Chunked_Upload {
 					// Release lock before error
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 					$wpdb->query( $wpdb->prepare( "SELECT RELEASE_LOCK(%s)", $lock_name ) );
-					wp_send_json_error( array( 'message' => 'Sorry, you are not allowed to upload this file type.' ) );
+					wp_send_json_error( array( 'message' => __( 'Sorry, you are not allowed to upload this file type.', 'nexura-upload-limits-manager' ) ) );
 				}
 				
 				// Mock a file array with the total size to pass to our quota checker
@@ -412,7 +413,7 @@ class Nexura_Chunked_Upload {
 			// Return an error so Plupload instantly retries this chunk. 
 			// If it was a concurrent request, the file will exist on the next retry.
 			// If it was a stale lock, it was just deleted and the lock will succeed on the next retry.
-			wp_send_json_error( array( 'message' => 'Chunk lock conflict or stale lock. Retrying...' ) );
+			wp_send_json_error( array( 'message' => __( 'Chunk lock conflict or stale lock. Retrying...', 'nexura-upload-limits-manager' ) ) );
 		}
 
 		// We use native PHP stream functions instead of WP_Filesystem to prevent memory exhaustion on large files.
@@ -426,7 +427,7 @@ class Nexura_Chunked_Upload {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->delete( $chunks_table, array( 'session_id' => $session_id, 'chunk_index' => $chunk ), array( '%s', '%d' ) );
 				wp_delete_file( $chunk_file );
-				wp_send_json_error( array( 'message' => 'File size exceeds the reserved upload size.' ) );
+				wp_send_json_error( array( 'message' => __( 'File size exceeds the reserved upload size.', 'nexura-upload-limits-manager' ) ) );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$session->received_size = (int) $wpdb->get_var( $wpdb->prepare( "SELECT received_size FROM {$sessions_table} WHERE session_id = %s", $session_id ) );
@@ -436,7 +437,7 @@ class Nexura_Chunked_Upload {
 			// Release the atomic lock so the chunk can be retried
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->delete( $chunks_table, array( 'session_id' => $session_id, 'chunk_index' => $chunk ), array( '%s', '%d' ) );
-			wp_send_json_error( array( 'message' => 'Failed to move chunk to temporary directory.' ) );
+			wp_send_json_error( array( 'message' => __( 'Failed to move chunk to temporary directory.', 'nexura-upload-limits-manager' ) ) );
 		}
 
 		// --------------------------------------------------------
@@ -447,13 +448,13 @@ class Nexura_Chunked_Upload {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$db_chunk_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$chunks_table} WHERE session_id = %s", $session_id ) );
 			if ( $db_chunk_count !== $chunks ) {
-				wp_send_json_error( array( 'message' => 'Chunk count mismatch in database. Upload failed.' ) );
+				wp_send_json_error( array( 'message' => __( 'Chunk count mismatch in database. Upload failed.', 'nexura-upload-limits-manager' ) ) );
 			}
 
 			// SECURITY CHECK: Verify all chunk files actually exist on disk
 			for ( $i = 0; $i < $chunks; $i++ ) {
 				if ( ! file_exists( $session_dir . '/' . $i . '.part' ) ) {
-					wp_send_json_error( array( 'message' => 'Missing chunk file. Merge aborted.' ) );
+					wp_send_json_error( array( 'message' => __( 'Missing chunk file. Merge aborted.', 'nexura-upload-limits-manager' ) ) );
 				}
 			}
 
@@ -463,7 +464,7 @@ class Nexura_Chunked_Upload {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$claimed = $wpdb->query( $wpdb->prepare( "UPDATE {$sessions_table} SET status = 'processing' WHERE session_id = %s AND status = 'uploading' AND received_size = expected_size", $session_id ) );
 			if ( ! $claimed ) {
-				wp_send_json_success( array( 'message' => 'Upload is being finalized.' ) );
+				wp_send_json_success( array( 'message' => __( 'Upload is being finalized.', 'nexura-upload-limits-manager' ) ) );
 			}
 
 			if ( ! defined( 'NEXURA_CURRENT_PROCESSING_SESSION' ) ) {
@@ -481,7 +482,7 @@ class Nexura_Chunked_Upload {
 			if ( $merged_size !== (int) $session->expected_size ) {
 				self::reset_session_uploading( $session_id );
 				wp_delete_file( $final_temp_file );
-				wp_send_json_error( array( 'message' => 'Merged file size mismatch. Upload failed.' ) );
+				wp_send_json_error( array( 'message' => __( 'Merged file size mismatch. Upload failed.', 'nexura-upload-limits-manager' ) ) );
 			}
 
 			for ( $i = 0; $i < $chunks; $i++ ) {
@@ -581,7 +582,7 @@ class Nexura_Chunked_Upload {
 		if ( isset( $_REQUEST['post_id'] ) && '' !== (string) $_REQUEST['post_id'] ) {
 			$post_id = (int) $_REQUEST['post_id'];
 			if ( $post_id && ! current_user_can( 'edit_post', $post_id ) ) {
-				self::send_media_upload_error( __( 'Sorry, you are not allowed to attach files to this post.' ), $name, $session_id, $session_dir );
+				self::send_media_upload_error( __( 'Sorry, you are not allowed to attach files to this post.', 'nexura-upload-limits-manager' ), $name, $session_id, $session_dir );
 			}
 		}
 
@@ -597,7 +598,7 @@ class Nexura_Chunked_Upload {
 		if ( isset( $post_data['context'] ) && in_array( $post_data['context'], array( 'custom-header', 'custom-background' ), true ) ) {
 			$wp_filetype = wp_check_filetype_and_ext( $final_temp_file, $name );
 			if ( empty( $wp_filetype['type'] ) || ! wp_match_mime_types( 'image', $wp_filetype['type'] ) ) {
-				self::send_media_upload_error( __( 'The uploaded file is not a valid image. Please try again.' ), $name, $session_id, $session_dir );
+				self::send_media_upload_error( __( 'The uploaded file is not a valid image. Please try again.', 'nexura-upload-limits-manager' ), $name, $session_id, $session_dir );
 			}
 		}
 
