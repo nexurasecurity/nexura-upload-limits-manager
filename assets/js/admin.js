@@ -1,4 +1,4 @@
-jQuery(document).ready(function($) {
+jQuery(function($) {
 	// 1. Install Nexura Security
 	$("#install-nexura-security").on("click", function(e) {
 		e.preventDefault();

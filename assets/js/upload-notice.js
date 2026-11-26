@@ -51,7 +51,7 @@
 	}
 
 	// Run once on DOM ready
-	$( document ).ready( function () {
+	$( function () {
 		injectBadge();
 
 		// Watch for dynamic content (media modal opens later)

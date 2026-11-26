@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://wordpress.org/plugins/nexura-upload-limits-manager/"><img src="https://img.shields.io/badge/REQUIRES%20WP-5.6%2B-464646.svg?style=flat-square&logo=wordpress" alt="Requires WP"></a>
   <a href="https://wordpress.org/plugins/nexura-upload-limits-manager/"><img src="https://img.shields.io/badge/REQUIRES%20PHP-7.4%2B-777bb4.svg?style=flat-square&logo=php" alt="Requires PHP"></a>
-  <a href="https://wordpress.org/plugins/nexura-upload-limits-manager/"><img src="https://img.shields.io/badge/TESTED%20UP%20TO-7.1-00d084.svg?style=flat-square&logo=wordpress" alt="Tested Up To"></a>
+  <a href="https://wordpress.org/plugins/nexura-upload-limits-manager/"><img src="https://img.shields.io/badge/TESTED%20UP%20TO-7.2-00d084.svg?style=flat-square&logo=wordpress" alt="Tested Up To"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-GPLv2-007acc.svg?style=flat-square" alt="License GPLv2"></a>
   <br>
   <a href="https://github.com/nexurasecurity/nexura-upload-limits-manager/actions/workflows/ci.yml"><img src="https://github.com/nexurasecurity/nexura-upload-limits-manager/actions/workflows/ci.yml/badge.svg" alt="CI - PHP Checks"></a>
@@ -128,7 +128,10 @@ Additionally, Nexura gives administrators full control over PHP limits (`upload_
 
 ## 📜 Changelog
 
-### Version 1.0.7 (Latest)
+### Version 1.0.8 (Latest)
+- **WordPress 7.2 & jQuery 4 Readiness:** Updated `Tested up to` to WordPress 7.2, modernized admin JavaScript DOM-ready handlers for jQuery 4 compatibility, and expanded CI PHP syntax checks through PHP 8.6.
+
+### Version 1.0.7
 - **Media Library Uploads Fix:** Media Library uploads of JPG and PNG no longer fail with "Sorry, you are not allowed to upload this file type." Chunks are assembled before WordPress checks the file.
 - **Chunk Size Parsing Fix:** Plugin, theme, and block-editor uploads no longer fail with "This part is too large for the server" after the first part by ensuring chunk sizes are parsed as numbers.
 - **Package Upload Progress:** Added inline visual progress bar and percentage status feedback during theme and plugin package uploads.
